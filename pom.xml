@@ -12,6 +12,7 @@
     <modules>
         <module>common</module>
         <module>mysql</module>
+        <module>common-parser</module>
     </modules>
 
     <properties>

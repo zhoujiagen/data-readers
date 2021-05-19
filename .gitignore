@@ -13,3 +13,7 @@ buildNumber.properties
 .idea/
 *.iml
 **/logs/*
+
+# ANTLR
+**/gen/
+**/test/**/*.tokens

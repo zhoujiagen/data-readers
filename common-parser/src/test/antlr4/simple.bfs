@@ -1,0 +1,29 @@
+-INCLUDE include.bff;
+
+FIELD PAGE_N_DIR_SLOTS: 2B;
+
+BLOCK BLOCK-1 {
+    FIELD PAGE_N_DIR_SLOTS: 2B 3;   // repeat 3 times
+    FIELD PAGE_HEAP_TOP: 2LB;       // little endian
+    FIELD PAGE_N_HEAP: 2lB;
+    FIELD PAGE_FREE: 2LB;
+}
+
+FIELD PAGE_N_DIR_SLOTS: 2BB;        // big endian
+FIELD PAGE_HEAP_TOP: 2B;
+FIELD PAGE_N_HEAP: 2B;
+FIELD PAGE_FREE: 2B;
+
+BLOCK BLOCK-1 {
+    FIELD PAGE_N_DIR_SLOTS: 2B;
+    BLOCK BLOCK-1;
+    BLOCK BLOCK-2 4;                // repeat 4 times
+    FIELD PAGE_FREE: 2B;
+    BLOCK {                         // implicit block declaration
+        FIELD PAGE_FREE: 2B;
+    };
+}
+
+BLOCK BLOCK-2 {
+    FIELD PAGE_N_DIR_SLOTS: 2B;
+}
