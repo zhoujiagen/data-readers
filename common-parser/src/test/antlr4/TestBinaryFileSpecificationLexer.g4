@@ -16,15 +16,10 @@ FILE_NAME: REGUALR_NAME_SYMBOL+ FILE_SUFFIX;
 // 关键字
 INCLUDE: '-INCLUDE';
 BLOCK: 'BLOCK';
-FIELD: 'FIELD';
 
 // 符号
 CLAUSE_END: ';' -> channel(HIDDEN);
 TYPE_DECL: ':';
-
-// 名称
-NAME: [a-zA-Z][0-9a-zA-Z_\-]+[0-9a-zA-Z];
-
 
 // 长度单位
 UNIT: 'B' // byte
@@ -32,6 +27,10 @@ UNIT: 'B' // byte
     | [lL]'B' // byte, little endian
     | [bB]'B' // byte, big endian
     ;
+
+// 名称
+NAME: [a-zA-Z][0-9a-zA-Z_\-]+[0-9a-zA-Z];
+
 INT: DIGIT+;
 fragment DIGIT: [0-9];
 fragment REGUALR_NAME_SYMBOL: [0-9a-zA-Z_\-];

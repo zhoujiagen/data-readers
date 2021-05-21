@@ -10,7 +10,7 @@ include: INCLUDE fileName=FILE_NAME;
 fieldSpecifications: (fieldDecl | blockDecl)+;
 
 fieldDecl:
-    FIELD fieldName=NAME TYPE_DECL typeSpec times=INT?;
+    fieldName=NAME TYPE_DECL typeSpec times=INT?;
 
 typeSpec:
     length=INT unit=UNIT;
