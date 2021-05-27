@@ -1,5 +1,5 @@
-grammar TestBinaryFileSpecificationParser;
-import TestBinaryFileSpecificationLexer;
+grammar BFSParser;
+import BFSLexer;
 
 root: prologue? fieldSpecifications;
 

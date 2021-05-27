@@ -1,5 +1,5 @@
 
-lexer grammar TestBinaryFileSpecificationLexer;
+lexer grammar BFSLexer;
 
 SPACE: [ \t\r\n]+    -> channel(HIDDEN);
 COMMENT_INPUT: '/*' .*? '*/' -> channel(HIDDEN);
