@@ -1,5 +1,7 @@
 package com.spike.data.readers.common.types;
 
+import com.google.common.base.Preconditions;
+
 public final class Either<L, R> {
     private L l;
     private R r;
@@ -10,6 +12,9 @@ public final class Either<L, R> {
     }
 
     public static <L, R> Either<L, R> of(L l, R r) {
+        Preconditions.checkArgument(
+                (l == null && r != null) || (l != null && r == null),
+                "invalid Either argument");
         return new Either<>(l, r);
     }
 

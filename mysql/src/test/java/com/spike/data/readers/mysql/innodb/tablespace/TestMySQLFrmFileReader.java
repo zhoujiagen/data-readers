@@ -6,12 +6,15 @@ import org.junit.Test;
 
 import java.io.EOFException;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class TestMySQLFrmFileReader {
 
     @Test
     public void testRead() {
-        final String fileName = "D:\\ProgramData\\MySQL\\Data\\internal\\t.frm";
+        System.out.println(Paths.get(".").toFile().getAbsolutePath());
+        final String fileName = "src/main/bfs/t1.frm";
 
         try (MySQLFrmFileReader reader = new MySQLFrmFileReader(8192, fileName)) {
             MySQLFrmFileReader.MySQLFrmFileDescription result = reader.readFully();

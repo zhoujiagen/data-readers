@@ -12,12 +12,23 @@ import java.io.IOException;
 public interface DataFileReader<OUT> {
 
     default void hexDump(byte[] bytes) {
-        ByteBufUtil.hexDump(bytes);
+        System.out.println(ByteBufUtil.hexDump(bytes));
     }
 
-    OUT readFully() throws IOException;
+    default String hexDumpString(byte[] bytes) {
+        return ByteBufUtil.hexDump(bytes);
+    }
+
+
+    default OUT readFully() throws IOException {
+        throw new UnsupportedOperationException();
+    }
 
     byte readByte() throws IOException;
+
+    default boolean readBit() throws IOException {
+        throw new UnsupportedOperationException();
+    }
 
     byte[] readByte(int n) throws IOException;
 }

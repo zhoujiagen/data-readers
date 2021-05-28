@@ -3,6 +3,7 @@ package com.spike.data.readers.common.parser.bfs;
 import com.spike.data.readers.common.types.Either;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface BFSModels {
 
@@ -16,13 +17,20 @@ public interface BFSModels {
         private List<String> includes;
         private List<BFSFileFieldSpecification> fieldSpecifications;
 
-
         public List<String> getIncludes() {
             return includes;
         }
 
         public void setIncludes(List<String> includes) {
             this.includes = includes;
+        }
+
+        public List<BFSFileFieldSpecification> getFieldSpecifications() {
+            return fieldSpecifications;
+        }
+
+        public void setFieldSpecifications(List<BFSFileFieldSpecification> fieldSpecifications) {
+            this.fieldSpecifications = fieldSpecifications;
         }
     }
 
@@ -44,10 +52,7 @@ public interface BFSModels {
     class BFSFieldDecl extends BFSBlockFieldDecl {
         private String fieldName;
         private BFSTypeSpec typeSpec;
-        private Integer times;
-
-        // contain values
-        private byte[] values;
+        private Optional<Integer> times;
 
         public String getFieldName() {
             return fieldName;
@@ -65,45 +70,36 @@ public interface BFSModels {
             this.typeSpec = typeSpec;
         }
 
-        public Integer getTimes() {
+        public Optional<Integer> getTimes() {
             return times;
         }
 
-        public void setTimes(Integer times) {
+        public void setTimes(Optional<Integer> times) {
             this.times = times;
-        }
-
-        public byte[] getValues() {
-            return values;
-        }
-
-        public void setValues(byte[] values) {
-            this.values = values;
         }
     }
 
+    enum BFSTypeUnit {
+        B, b, LB, BB;
+    }
 
     class BFSTypeSpec extends BFSBaseModel {
-        public enum TypeUnit {
-            B, b, LB, BB
-        }
+        private int length;
+        private BFSTypeUnit unit;
 
-        private Integer length;
-        private BFSTypeSpec.TypeUnit unit;
-
-        public Integer getLength() {
+        public int getLength() {
             return length;
         }
 
-        public void setLength(Integer length) {
+        public void setLength(int length) {
             this.length = length;
         }
 
-        public BFSTypeSpec.TypeUnit getUnit() {
+        public BFSTypeUnit getUnit() {
             return unit;
         }
 
-        public void setUnit(BFSTypeSpec.TypeUnit unit) {
+        public void setUnit(BFSTypeUnit unit) {
             this.unit = unit;
         }
     }
@@ -111,7 +107,7 @@ public interface BFSModels {
     class BFSBlockDecl extends BFSBaseDecl {
         private String blockName;
         private List<BFSBlockFieldDecl> blockFieldDecls;
-        private Integer times;
+        private Optional<Integer> times;
 
         public String getBlockName() {
             return blockName;
@@ -129,11 +125,11 @@ public interface BFSModels {
             this.blockFieldDecls = blockFieldDecls;
         }
 
-        public Integer getTimes() {
+        public Optional<Integer> getTimes() {
             return times;
         }
 
-        public void setTimes(Integer times) {
+        public void setTimes(Optional<Integer> times) {
             this.times = times;
         }
     }
@@ -161,24 +157,24 @@ public interface BFSModels {
     }
 
     class BFSBlockImplicitDecl extends BFSBlockFieldDecl {
-        private String blockName; // maybe null
-        private BFSBlockFieldDecl blockFieldDecl;
+        private Optional<String> blockName; // maybe null
+        private List<BFSBlockFieldDecl> blockFieldDecls;
         private Integer times;
 
-        public String getBlockName() {
+        public Optional<String> getBlockName() {
             return blockName;
         }
 
-        public void setBlockName(String blockName) {
+        public void setBlockName(Optional<String> blockName) {
             this.blockName = blockName;
         }
 
-        public BFSBlockFieldDecl getBlockFieldDecl() {
-            return blockFieldDecl;
+        public List<BFSBlockFieldDecl> getBlockFieldDecls() {
+            return blockFieldDecls;
         }
 
-        public void setBlockFieldDecl(BFSBlockFieldDecl blockFieldDecl) {
-            this.blockFieldDecl = blockFieldDecl;
+        public void setBlockFieldDecls(List<BFSBlockFieldDecl> blockFieldDecls) {
+            this.blockFieldDecls = blockFieldDecls;
         }
 
         public Integer getTimes() {

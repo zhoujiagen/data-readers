@@ -12,7 +12,7 @@ import java.nio.file.Paths;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 
-public abstract class ChunkedDataFileReader<OUT> implements DataFileReader<OUT>, Closeable {
+public class ChunkedDataFileReader<OUT> implements DataFileReader<OUT>, Closeable {
     public static final int DEFAULT_CHUNK_SIZE = 8192;
 
     protected final int chunkSize;

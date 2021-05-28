@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration scan="true" scanPeriod="60 seconds" debug="false">
-    <contextName>data-readers</contextName>
+    <contextName>common-parser</contextName>
     <property name="LOG_HOME" value="logs"/>
 
     <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
@@ -24,7 +24,7 @@
         </encoder>
     </appender>
 
-    <root level="debug">
+    <root level="WARN">
         <appender-ref ref="stdout"/>
         <appender-ref ref="file"/>
     </root>

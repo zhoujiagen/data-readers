@@ -1,6 +1,10 @@
 package com.spike.data.readers.common.parser;
 
 import com.google.common.collect.Maps;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.spike.data.readers.common.parser.bfs.BFSModels;
+import com.spike.data.readers.common.reader.RandomAccessDataFileReader;
 import org.antlr.v4.runtime.*;
 
 import java.io.IOException;
@@ -9,6 +13,8 @@ import java.nio.file.Paths;
 import java.util.Map;
 
 public class TestBFSReader {
+    private
+
     static final Map<Path, String> errorMsgCollector = Maps.newHashMap();
 
     static ANTLRErrorStrategy errorStrategy = new DefaultErrorStrategy() {
@@ -28,25 +34,22 @@ public class TestBFSReader {
         }
     }
 
-    ;
-
     public static void main(String[] args) throws IOException {
         System.out.println(Paths.get(".").toFile().getAbsolutePath());
         Path path = Paths.get("mysql/src/main/bfs/frmFile.bfs");
-        CharStream rawCS = CharStreams.fromPath(path);
-        CaseChangingCharStream cs = new CaseChangingCharStream(rawCS, true);
-        BFSParserLexer lexer = new BFSParserLexer(cs);
-        CommonTokenStream tokens = new CommonTokenStream(lexer);
-        BFSParserParser parser = new BFSParserParser(tokens);
+        BFSReader reader = new BFSReader(path);
+        BFSModels.BFSFile bfsFile = reader.parse();
 
-        parser.setErrorHandler(errorStrategy);
-        parser.addErrorListener(new MyErrorListener(path));
+        Gson gson = new GsonBuilder()
+                .serializeNulls()
+                .setPrettyPrinting()
+                .create();
+        System.out.println(gson.toJson(bfsFile));
 
-//        ParseTree tree = parser.root();
-//        System.out.println(tree.toStringTree(parser));
-
-        BFSParserParser.RootContext rootContext = parser.root();
-        BFSReader visitor = new BFSReader();
-        visitor.visitRoot(rootContext);
+        try (RandomAccessDataFileReader<Object> dataFileReader =
+                     new RandomAccessDataFileReader<Object>(
+                             Paths.get("mysql/src/main/bfs/t1.frm"))) {
+            reader.read(dataFileReader);
+        }
     }
 }
