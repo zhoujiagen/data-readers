@@ -1,13 +1,15 @@
 grammar TestBinaryFileSpecificationParser;
 import TestBinaryFileSpecificationLexer;
 
-root: prologue? fieldSpecifications;
+root: prologue? fieldSpecification+;
 
 prologue: include+;
 
 include: INCLUDE fileName=FILE_NAME;
 
-fieldSpecifications: (fieldDecl | blockDecl)+;
+fieldSpecification:
+    fieldDecl
+    | blockDecl;
 
 fieldDecl:
     fieldName=NAME TYPE_DECL typeSpec times=DIGITS?;
@@ -80,10 +82,16 @@ jsonDataType: JSON;
 nullDataType: NULL;
 
 blockDecl:
-    BLOCK blockName=NAME  '{' (fieldDecl | blockDeclRef | blockImplicitDecl)+ '}';
+    BLOCK blockName=NAME  '{' blockFieldDecl+ '}' times=DIGITS?;
+
+blockFieldDecl:
+    fieldDecl
+    | blockDeclRef
+    | blockImplicitDecl
+    ;
 
 blockDeclRef:
     BLOCK blockName=NAME times=DIGITS?;
 
 blockImplicitDecl:
-    BLOCK blockName=NAME? '{' fieldDecl | blockDecl '}';
+    BLOCK blockName=NAME? '{' blockFieldDecl+ '}';

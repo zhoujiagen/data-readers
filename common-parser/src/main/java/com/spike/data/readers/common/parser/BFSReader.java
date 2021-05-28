@@ -1,11 +1,36 @@
 package com.spike.data.readers.common.parser;
 
-import com.spike.data.readers.common.parser.bfs.BFSBaseModel;
-import com.spike.data.readers.common.parser.bfs.BFSBlockDecl;
+import com.google.common.collect.Lists;
+import com.spike.data.readers.common.parser.bfs.BFSModels;
+import com.spike.data.readers.common.types.Either;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.List;
+
 @Slf4j
-public class BFSReader extends BFSParserBaseVisitor<BFSBaseModel> {
+public class BFSReader extends BFSParserBaseVisitor<BFSModels.BFSBaseModel> {
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
+     */
+    @Override
+    public BFSModels.BFSFile visitRoot(BFSParserParser.RootContext ctx) {
+        BFSModels.BFSFile result = new BFSModels.BFSFile();
+
+        if (ctx.prologue() != null) {
+            log.warn("currently not support include: " + ctx.prologue().toStringTree());
+        }
+
+        List<BFSModels.BFSFileFieldSpecification> specifications = Lists.newArrayList();
+        List<BFSParserParser.FieldSpecificationContext> fieldSpecificationContexts = ctx.fieldSpecification();
+        for (BFSParserParser.FieldSpecificationContext fieldSpecificationContext : fieldSpecificationContexts) {
+            specifications.add(this.visitFieldSpecification(fieldSpecificationContext));
+        }
+
+        return result;
+    }
 
     /**
      * {@inheritDoc}
@@ -14,7 +39,7 @@ public class BFSReader extends BFSParserBaseVisitor<BFSBaseModel> {
      * {@link #visitChildren} on {@code ctx}.</p>
      */
     @Override
-    public BFSBaseModel visitRoot(BFSParserParser.RootContext ctx) {
+    public BFSModels.BFSBaseModel visitPrologue(BFSParserParser.PrologueContext ctx) {
         return visitChildren(ctx);
     }
 
@@ -25,9 +50,10 @@ public class BFSReader extends BFSParserBaseVisitor<BFSBaseModel> {
      * {@link #visitChildren} on {@code ctx}.</p>
      */
     @Override
-    public BFSBaseModel visitPrologue(BFSParserParser.PrologueContext ctx) {
+    public BFSModels.BFSBaseModel visitInclude(BFSParserParser.IncludeContext ctx) {
         return visitChildren(ctx);
     }
+
 
     /**
      * {@inheritDoc}
@@ -36,9 +62,20 @@ public class BFSReader extends BFSParserBaseVisitor<BFSBaseModel> {
      * {@link #visitChildren} on {@code ctx}.</p>
      */
     @Override
-    public BFSBaseModel visitInclude(BFSParserParser.IncludeContext ctx) {
-        return visitChildren(ctx);
+    public BFSModels.BFSFileFieldSpecification visitFieldSpecification(BFSParserParser.FieldSpecificationContext ctx) {
+        BFSModels.BFSFileFieldSpecification result = new BFSModels.BFSFileFieldSpecification();
+        BFSParserParser.FieldDeclContext fieldDeclContext = ctx.fieldDecl();
+        BFSParserParser.BlockDeclContext blockDeclContext = ctx.blockDecl();
+        if (fieldDeclContext != null) {
+            result.setEither(Either.of(this.visitFieldDecl(fieldDeclContext), null));
+        } else if (blockDeclContext != null) {
+            result.setEither(Either.of(null, this.visitBlockDecl(blockDeclContext)));
+        } else {
+            throw new RuntimeException(ctx.toStringTree());
+        }
+        return result;
     }
+
 
     /**
      * {@inheritDoc}
@@ -47,520 +84,12 @@ public class BFSReader extends BFSParserBaseVisitor<BFSBaseModel> {
      * {@link #visitChildren} on {@code ctx}.</p>
      */
     @Override
-    public BFSBaseModel visitFieldSpecifications(BFSParserParser.FieldSpecificationsContext ctx) {
-        return visitChildren(ctx);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
-    @Override
-    public BFSBaseModel visitFieldDecl(BFSParserParser.FieldDeclContext ctx) {
-        return visitChildren(ctx);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
-    @Override
-    public BFSBaseModel visitTypeSpec(BFSParserParser.TypeSpecContext ctx) {
-        return visitChildren(ctx);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
-    @Override
-    public BFSBaseModel visitBit(BFSParserParser.BitContext ctx) {
-        return visitChildren(ctx);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
-    @Override
-    public BFSBaseModel visitTinyint(BFSParserParser.TinyintContext ctx) {
-        return visitChildren(ctx);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
-    @Override
-    public BFSBaseModel visitBool(BFSParserParser.BoolContext ctx) {
-        return visitChildren(ctx);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
-    @Override
-    public BFSBaseModel visitSmallint(BFSParserParser.SmallintContext ctx) {
-        return visitChildren(ctx);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
-    @Override
-    public BFSBaseModel visitMediumint(BFSParserParser.MediumintContext ctx) {
-        return visitChildren(ctx);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
-    @Override
-    public BFSBaseModel visitAint(BFSParserParser.AintContext ctx) {
-        return visitChildren(ctx);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
-    @Override
-    public BFSBaseModel visitInteger(BFSParserParser.IntegerContext ctx) {
-        return visitChildren(ctx);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
-    @Override
-    public BFSBaseModel visitBigint(BFSParserParser.BigintContext ctx) {
-        return visitChildren(ctx);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
-    @Override
-    public BFSBaseModel visitDecimal(BFSParserParser.DecimalContext ctx) {
-        return visitChildren(ctx);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
-    @Override
-    public BFSBaseModel visitFloatPrecision(BFSParserParser.FloatPrecisionContext ctx) {
-        return visitChildren(ctx);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
-    @Override
-    public BFSBaseModel visitAfloat(BFSParserParser.AfloatContext ctx) {
-        return visitChildren(ctx);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
-    @Override
-    public BFSBaseModel visitDoublePrecision(BFSParserParser.DoublePrecisionContext ctx) {
-        return visitChildren(ctx);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
-    @Override
-    public BFSBaseModel visitAdouble(BFSParserParser.AdoubleContext ctx) {
-        return visitChildren(ctx);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
-    @Override
-    public BFSBaseModel visitReal(BFSParserParser.RealContext ctx) {
-        return visitChildren(ctx);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
-    @Override
-    public BFSBaseModel visitDate(BFSParserParser.DateContext ctx) {
-        return visitChildren(ctx);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
-    @Override
-    public BFSBaseModel visitDatetime(BFSParserParser.DatetimeContext ctx) {
-        return visitChildren(ctx);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
-    @Override
-    public BFSBaseModel visitTimestamp(BFSParserParser.TimestampContext ctx) {
-        return visitChildren(ctx);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
-    @Override
-    public BFSBaseModel visitTime(BFSParserParser.TimeContext ctx) {
-        return visitChildren(ctx);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
-    @Override
-    public BFSBaseModel visitYear(BFSParserParser.YearContext ctx) {
-        return visitChildren(ctx);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
-    @Override
-    public BFSBaseModel visitAchar(BFSParserParser.AcharContext ctx) {
-        return visitChildren(ctx);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
-    @Override
-    public BFSBaseModel visitVarchar(BFSParserParser.VarcharContext ctx) {
-        return visitChildren(ctx);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
-    @Override
-    public BFSBaseModel visitBinary(BFSParserParser.BinaryContext ctx) {
-        return visitChildren(ctx);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
-    @Override
-    public BFSBaseModel visitVarbinary(BFSParserParser.VarbinaryContext ctx) {
-        return visitChildren(ctx);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
-    @Override
-    public BFSBaseModel visitTinyblob(BFSParserParser.TinyblobContext ctx) {
-        return visitChildren(ctx);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
-    @Override
-    public BFSBaseModel visitTinytext(BFSParserParser.TinytextContext ctx) {
-        return visitChildren(ctx);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
-    @Override
-    public BFSBaseModel visitBlob(BFSParserParser.BlobContext ctx) {
-        return visitChildren(ctx);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
-    @Override
-    public BFSBaseModel visitText(BFSParserParser.TextContext ctx) {
-        return visitChildren(ctx);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
-    @Override
-    public BFSBaseModel visitMediumblob(BFSParserParser.MediumblobContext ctx) {
-        return visitChildren(ctx);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
-    @Override
-    public BFSBaseModel visitMediumtext(BFSParserParser.MediumtextContext ctx) {
-        return visitChildren(ctx);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
-    @Override
-    public BFSBaseModel visitLongblob(BFSParserParser.LongblobContext ctx) {
-        return visitChildren(ctx);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
-    @Override
-    public BFSBaseModel visitLongtext(BFSParserParser.LongtextContext ctx) {
-        return visitChildren(ctx);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
-    @Override
-    public BFSBaseModel visitAenum(BFSParserParser.AenumContext ctx) {
-        return visitChildren(ctx);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
-    @Override
-    public BFSBaseModel visitSet(BFSParserParser.SetContext ctx) {
-        return visitChildren(ctx);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
-    @Override
-    public BFSBaseModel visitGeometry(BFSParserParser.GeometryContext ctx) {
-        return visitChildren(ctx);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
-    @Override
-    public BFSBaseModel visitPoint(BFSParserParser.PointContext ctx) {
-        return visitChildren(ctx);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
-    @Override
-    public BFSBaseModel visitLinestring(BFSParserParser.LinestringContext ctx) {
-        return visitChildren(ctx);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
-    @Override
-    public BFSBaseModel visitPolygon(BFSParserParser.PolygonContext ctx) {
-        return visitChildren(ctx);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
-    @Override
-    public BFSBaseModel visitMultipoint(BFSParserParser.MultipointContext ctx) {
-        return visitChildren(ctx);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
-    @Override
-    public BFSBaseModel visitMultilinestring(BFSParserParser.MultilinestringContext ctx) {
-        return visitChildren(ctx);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
-    @Override
-    public BFSBaseModel visitMultipolygon(BFSParserParser.MultipolygonContext ctx) {
-        return visitChildren(ctx);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
-    @Override
-    public BFSBaseModel visitGeometrycollection(BFSParserParser.GeometrycollectionContext ctx) {
-        return visitChildren(ctx);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
-    @Override
-    public BFSBaseModel visitJsonDataType(BFSParserParser.JsonDataTypeContext ctx) {
-        return visitChildren(ctx);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
-    @Override
-    public BFSBaseModel visitNullDataType(BFSParserParser.NullDataTypeContext ctx) {
-        return visitChildren(ctx);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation returns the result of calling
-     * {@link #visitChildren} on {@code ctx}.</p>
-     */
-    @Override
-    public BFSBlockDecl visitBlockDecl(BFSParserParser.BlockDeclContext ctx) {
-        BFSBlockDecl result = new BFSBlockDecl();
-        result.setBlockName(ctx.blockName.getText());
-        // FIXME(zhoujiagen) fix visit children
-        BFSBaseModel model = visitChildren(ctx);
-        int childSize = ctx.getChildCount();
-        for (int i = 3; i < childSize; i++) {
-            log.debug(ctx.getChild(i).toStringTree());
+    public BFSModels.BFSFieldDecl visitFieldDecl(BFSParserParser.FieldDeclContext ctx) {
+        BFSModels.BFSFieldDecl result = new BFSModels.BFSFieldDecl();
+        result.setFieldName(ctx.fieldName.getText());
+        result.setTypeSpec(this.visitTypeSpec(ctx.typeSpec()));
+        if (ctx.times != null) {
+            result.setTimes(Integer.valueOf(ctx.times.getText()));
         }
         return result;
     }
@@ -572,8 +101,11 @@ public class BFSReader extends BFSParserBaseVisitor<BFSBaseModel> {
      * {@link #visitChildren} on {@code ctx}.</p>
      */
     @Override
-    public BFSBaseModel visitBlockDeclRef(BFSParserParser.BlockDeclRefContext ctx) {
-        return visitChildren(ctx);
+    public BFSModels.BFSTypeSpec visitTypeSpec(BFSParserParser.TypeSpecContext ctx) {
+        BFSModels.BFSTypeSpec result = new BFSModels.BFSTypeSpec();
+//        return visitChildren(ctx);
+        // FIXME
+        return result;
     }
 
     /**
@@ -583,9 +115,67 @@ public class BFSReader extends BFSParserBaseVisitor<BFSBaseModel> {
      * {@link #visitChildren} on {@code ctx}.</p>
      */
     @Override
-    public BFSBaseModel visitBlockImplicitDecl(BFSParserParser.BlockImplicitDeclContext ctx) {
-        return visitChildren(ctx);
+    public BFSModels.BFSBlockDecl visitBlockDecl(BFSParserParser.BlockDeclContext ctx) {
+        BFSModels.BFSBlockDecl result = new BFSModels.BFSBlockDecl();
+        result.setBlockName(ctx.blockName.getText());
+        List<BFSModels.BFSBlockFieldDecl> blockFieldDecls = Lists.newArrayList();
+        List<BFSParserParser.BlockFieldDeclContext> blockFieldDeclCtxs =
+                ctx.blockFieldDecl();
+        for (BFSParserParser.BlockFieldDeclContext childCtx : blockFieldDeclCtxs) {
+            blockFieldDecls.add(this.visitBlockFieldDecl(childCtx));
+        }
+
+        result.setBlockFieldDecls(blockFieldDecls);
+        if (ctx.times != null) {
+            result.setTimes(Integer.valueOf(ctx.times.getText()));
+        }
+        return result;
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
+     */
+    @Override
+    public BFSModels.BFSBlockFieldDecl visitBlockFieldDecl(BFSParserParser.BlockFieldDeclContext ctx) {
+        if (ctx.fieldDecl() != null) {
+            return this.visitFieldDecl(ctx.fieldDecl());
+        } else if (ctx.blockDeclRef() != null) {
+            return this.visitBlockDeclRef(ctx.blockDeclRef());
+        } else if (ctx.blockImplicitDecl() != null) {
+            return this.visitBlockImplicitDecl(ctx.blockImplicitDecl());
+        } else {
+            throw new RuntimeException(ctx.toStringTree());
+        }
+    }
+
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
+     */
+    @Override
+    public BFSModels.BFSBlockDeclRef visitBlockDeclRef(BFSParserParser.BlockDeclRefContext ctx) {
+        BFSModels.BFSBlockDeclRef result = new BFSModels.BFSBlockDeclRef();
+        // FIXME
+        return result;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
+     */
+    @Override
+    public BFSModels.BFSBlockImplicitDecl visitBlockImplicitDecl(BFSParserParser.BlockImplicitDeclContext ctx) {
+        BFSModels.BFSBlockImplicitDecl result = new BFSModels.BFSBlockImplicitDecl();
+        // FIXME
+        return result;
+    }
 
 }

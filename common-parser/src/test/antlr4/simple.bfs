@@ -14,16 +14,22 @@ PAGE_HEAP_TOP: 2B;
 PAGE_N_HEAP: 2B;
 PAGE_FREE: 2B;
 
-BLOCK BLOCK-1 {
+BLOCK BLOCK-2 {
     PAGE_N_DIR_SLOTS: 2B;
     BLOCK BLOCK-1;
-    BLOCK BLOCK-2 4;                // repeat 4 times
+    BLOCK BLOCK-3 4;                // repeat 4 times
     PAGE_FREE: 2B;
     BLOCK {                         // implicit block declaration
         PAGE_FREE: 2B;
+        PAGE_N_HEAP: 2B;
+        BLOCK BLOCK-1;
+        BLOCK BLOCK-3 4;
+        BLOCK {
+            PAGE_FREE: 2B;
+        }
     };
 }
 
-BLOCK BLOCK-2 {
+BLOCK BLOCK-3 {
     PAGE_N_DIR_SLOTS: 2B;
 }
