@@ -1,6 +1,5 @@
 # README
 
-## frmFile.bfs
 ### t1.frm
 
 ``` sql

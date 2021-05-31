@@ -48,7 +48,7 @@ public class TestBFSReader {
 
         try (RandomAccessDataFileReader<Object> dataFileReader =
                      new RandomAccessDataFileReader<Object>(
-                             Paths.get("mysql/src/main/bfs/t1.frm"))) {
+                             Paths.get("mysql/src/test/bfs/t1.frm"))) {
             reader.read(dataFileReader);
         }
     }
