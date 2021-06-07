@@ -4,8 +4,10 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.primitives.Bytes;
 import com.spike.data.readers.common.DataFileReader;
+import com.spike.data.readers.common.parser.bfs.BFSIRs;
 import com.spike.data.readers.common.parser.bfs.BFSModels;
 import com.spike.data.readers.common.types.Either;
 import org.antlr.v4.runtime.*;
@@ -15,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public class BFSReader extends BFSParserBaseVisitor<BFSModels.BFSBaseModel> {
@@ -243,6 +246,30 @@ public class BFSReader extends BFSParserBaseVisitor<BFSModels.BFSBaseModel> {
         BFSModels.BFSTypeSpec result = new BFSModels.BFSTypeSpec();
         result.setLength(Integer.valueOf(ctx.length.getText()));
         result.setUnit(BFSModels.BFSTypeUnit.valueOf(ctx.unit.getText()));
+        return result;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
+     */
+    @Override public BFSModels.BFSBlockDef visitBlockDef(BFSParserParser.BlockDefContext ctx) {
+        BFSModels.BFSBlockDef result = new BFSModels.BFSBlockDef();
+        result.setBlockName(ctx.blockName.getText());
+
+        List<BFSModels.BFSBlockFieldDecl> blockFieldDecls = Lists.newArrayList();
+        List<BFSParserParser.BlockFieldDeclContext> blockFieldDeclCtxs =
+                ctx.blockFieldDecl();
+        for (BFSParserParser.BlockFieldDeclContext childCtx : blockFieldDeclCtxs) {
+            blockFieldDecls.add(this.visitBlockFieldDecl(childCtx));
+        }
+        result.setBlockFieldDecls(blockFieldDecls);
+
+        // FIXME(zhoujiagen): handle store block definition
+//        final Map<String, BFSIRs.BFSBlockDefinition> BLOCK_DEF_MAP = Maps.newHashMap();
+//        BLOCK_DEF_MAP.put(result.getBlockName(), result);
         return result;
     }
 

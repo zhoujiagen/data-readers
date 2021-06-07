@@ -104,6 +104,27 @@ public interface BFSModels {
         }
     }
 
+    class BFSBlockDef extends BFSBaseDecl {
+        private String blockName;
+        private List<BFSBlockFieldDecl> blockFieldDecls;
+
+        public String getBlockName() {
+            return blockName;
+        }
+
+        public void setBlockName(String blockName) {
+            this.blockName = blockName;
+        }
+
+        public List<BFSBlockFieldDecl> getBlockFieldDecls() {
+            return blockFieldDecls;
+        }
+
+        public void setBlockFieldDecls(List<BFSBlockFieldDecl> blockFieldDecls) {
+            this.blockFieldDecls = blockFieldDecls;
+        }
+    }
+
     class BFSBlockDecl extends BFSBaseDecl {
         private String blockName;
         private List<BFSBlockFieldDecl> blockFieldDecls;

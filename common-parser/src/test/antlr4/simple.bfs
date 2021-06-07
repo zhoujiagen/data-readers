@@ -1,6 +1,13 @@
--INCLUDE include.bff;
+-INCLUDE include.bfs;
 
 PAGE_N_DIR_SLOTS: 2B;
+
+TYPEDEF BLOCK BLOCK-0 {
+    PAGE_N_DIR_SLOTS: 2B 3;   // repeat 3 times
+    PAGE_HEAP_TOP: 2LB;       // little endian
+    PAGE_N_HEAP: 2lB;
+    PAGE_FREE: 2LB;
+};
 
 BLOCK BLOCK-1 {
     PAGE_N_DIR_SLOTS: 2B 3;   // repeat 3 times

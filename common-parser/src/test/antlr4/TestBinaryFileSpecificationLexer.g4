@@ -10,12 +10,13 @@ LINE_COMMENT: (('-- ' | '#' | '//') ~[\r\n]* ('\r'? '\n' | EOF)
 
 
 // 文件后缀
-FILE_SUFFIX: '.bff';
+FILE_SUFFIX: '.bfs';
 FILE_NAME: REGUALR_NAME_SYMBOL+ FILE_SUFFIX;
 
 // 关键字
 INCLUDE: '-INCLUDE';
 BLOCK: 'BLOCK';
+TYPE_DEF: 'TYPEDEF';
 
 // 类型: MYSQL
 // numeric data types

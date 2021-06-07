@@ -1,0 +1,17 @@
+// FIL Header
+
+typedef block FILHeader {
+    CHECKSUM: 4B;
+    PAGE_NO_OFFSET: 4B;
+    PREV_PAGE: 4B;
+    NEXT_PAGE: 4B;
+    LSN_LAST_PAGE_MODIFICATION: 8B;
+    PAGE_TYPE: 2B;
+    FLUSH_LSN: 8B;
+    SPACE_ID: 4B;
+};
+
+typedef block FILTrailer {
+    CHECKSUM: 4B;
+    LSN_LOW: 4B;    // low 32 bits of LSN
+};

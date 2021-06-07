@@ -9,6 +9,7 @@ include: INCLUDE fileName=FILE_NAME;
 
 fieldSpecification:
     fieldDecl
+    | blockDef
     | blockDecl;
 
 fieldDecl:
@@ -80,6 +81,9 @@ spatialDataType:
 jsonDataType: JSON;
 
 nullDataType: NULL;
+
+blockDef:
+    TYPE_DEF BLOCK blockName=NAME '{' blockFieldDecl+ '}';
 
 blockDecl:
     BLOCK blockName=NAME  '{' blockFieldDecl+ '}' times=DIGITS?;

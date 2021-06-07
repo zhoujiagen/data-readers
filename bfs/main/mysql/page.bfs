@@ -1,0 +1,48 @@
+-include filHeaderTrailer.bfs;
+-include fspHeader.bfs;
+-include extentDescriptor.bfs;
+
+typedef block PAGE_FSP_HDR {
+    block FILHeader;
+    block FSPHeader;
+    block XDESEntry 256;
+    EMPTY_SPACE: 5986B;
+    block FILTrailer;
+};
+
+typedef block IBUF_BITMAP_PAGE_ENTRY {
+    FREE_SPACE: 2b;
+    BUFFERED_FLAG: 1b;
+    CHANGE_BUFFER_FLAG: 1b;
+};
+
+typedef block PAGE_IBUF_BITMAP {
+    block FILHeader;
+    // CHANGE_BUFFER_BITMAP: 8192B; // 4 bits per page: pages 0-16384
+    block IBUF_BITMAP_PAGE_ENTRY 2048;
+    EMPTY_SPACE: 8146B;
+    block FILTrailer;
+};
+
+typedef block INODE_ENTRY {
+    FSEG_ID: 8B;
+    USED_PAGE_IN_NOT_FULL: 4B;
+    LIST_BASE_NODE_FOR_FREE: 16B;
+    LIST_BASE_NODE_FOR_NOT_FULL: 16B;
+    LIST_BASE_NODE_FOR_FULL: 16B;
+    MAGIC_NUMBER: 4B;   // 97937874
+    block FRAGMENT_ARRAY_ENTRY {
+        ENTRY: 4B;
+    } 32;
+};
+
+typedef block PAGE_INODE {
+    block FILHeader;
+    LIST_NODE_FOR_INODE_PAGE_LIST: 12B;
+    block INODE_ENTRY 85;
+    EMPTY_SPACE: 6B;
+    block FILTrailer;
+};
+
+// TODO: PAGE_INDEX
+// TODO: PAGE_TRX_SYS

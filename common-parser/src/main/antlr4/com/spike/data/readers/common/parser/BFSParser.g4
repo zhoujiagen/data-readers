@@ -81,6 +81,9 @@ typeSpec:
 //
 //nullDataType: NULL;
 
+blockDef:
+    TYPE_DEF BLOCK blockName=NAME '{' blockFieldDecl+ '}';
+
 blockDecl:
     BLOCK blockName=NAME  '{' blockFieldDecl+ '}' times=DIGITS?;
 

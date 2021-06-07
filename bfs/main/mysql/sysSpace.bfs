@@ -1,0 +1,14 @@
+// System Table Space
+
+// page 0: FSP_HDR: Filespace Header / Extent Descriptor
+// page 1: IBUF_BITMAP: Insert Buffer Bookkeeping
+// page 2: INODE: Index Node Information
+// page 3: SYS: Insert Buffer Header
+// page 4: INDEX: Insert Buffer Root
+// page 5: TRX_SYS: Transaction System Header
+// page 6: SYS: First Rollback Segment
+// page 7: SYS: Data dictionary Header
+// ...
+// page 64-127: Double Write Buffer Block 1
+// page 128-191: Double Write Buffer Block 1
+// ...

@@ -1,0 +1,8 @@
+// XDES: Extent Descriptor
+
+typedef block XDESEntry {
+    FILE_SEGMENT_ID: 8B;
+    LIST_NODE_FOR_XDES_LIST: 12B;
+    STATE: 4B;
+    PAGE_SATE_BITMAP: 16B;  // 2 bits per page: 1=free, 2=clean
+};

@@ -36,7 +36,7 @@ public class TestBFSReader {
 
     public static void main(String[] args) throws IOException {
         System.out.println(Paths.get(".").toFile().getAbsolutePath());
-        Path path = Paths.get("mysql/src/main/bfs/frmFile.bfs");
+        Path path = Paths.get("bfs/main/mysql/frmFile.bfs");
         BFSReader reader = new BFSReader(path);
         BFSModels.BFSFile bfsFile = reader.parse();
 
@@ -48,7 +48,7 @@ public class TestBFSReader {
 
         try (RandomAccessDataFileReader<Object> dataFileReader =
                      new RandomAccessDataFileReader<Object>(
-                             Paths.get("mysql/src/test/bfs/t1.frm"))) {
+                             Paths.get("bfs/test/mysql/t1.frm"))) {
             reader.read(dataFileReader);
         }
     }
