@@ -18,6 +18,11 @@ public interface BFSModels {
         public void setFileName(String fileName) {
             this.fileName = fileName;
         }
+
+        @Override
+        public String toString() {
+            return fileName;
+        }
     }
 
     class BFSBaseDecl extends BFSBaseModel {
@@ -121,8 +126,17 @@ public interface BFSModels {
     }
 
     class BFSTypeSpec extends BFSBaseModel {
+        private boolean ellipsis = false;
         private int length;
         private BFSTypeUnit unit;
+
+        public boolean isEllipsis() {
+            return ellipsis;
+        }
+
+        public void setEllipsis(boolean ellipsis) {
+            this.ellipsis = ellipsis;
+        }
 
         public int getLength() {
             return length;

@@ -3,9 +3,11 @@ import TestBinaryFileSpecificationLexer;
 
 root: prologue? fieldSpecification+;
 
-prologue: include+;
+prologue: include+ define?;
 
 include: INCLUDE fileName=FILE_NAME;
+
+define: DEFINE constName=NAME '=' length=DIGITS unit=UNIT?;
 
 fieldSpecification:
     fieldDecl
@@ -16,7 +18,8 @@ fieldDecl:
     fieldName=NAME TYPE_DECL typeSpec times=DIGITS?;
 
 typeSpec:
-    length=DIGITS unit=UNIT
+    | ELLIPSIS
+    | length=DIGITS unit=UNIT
     | numericDataType
     | dataAndTimeDataType
     | stringDataType
@@ -24,6 +27,30 @@ typeSpec:
     | jsonDataType
     | nullDataType
     ;
+
+blockDef:
+    TYPE_DEF BLOCK blockName=NAME '{' blockFieldDecl+ '}' (TYPE_DECL valueRef)?;
+
+blockDecl:
+    BLOCK blockName=NAME '{' blockFieldDecl+ '}' times=DIGITS?;
+
+blockFieldDecl:
+    fieldDecl
+    | blockDeclRef
+    | blockImplicitDecl
+    ;
+
+blockDeclRef:
+    BLOCK blockName=NAME aliasName=NAME? (valueRef? | times=DIGITS?);
+
+valueRef:
+    '$[' NAME (DOT NAME)* ']'
+    | '${' constValue=NAME '}'
+    ;
+
+blockImplicitDecl:
+    BLOCK blockName=NAME? '{' blockFieldDecl+ '}' times=DIGITS?;
+
 
 numericDataType:
     BIT (LP m=DIGITS RP)?                                                                           # bit
@@ -81,21 +108,3 @@ spatialDataType:
 jsonDataType: JSON;
 
 nullDataType: NULL;
-
-blockDef:
-    TYPE_DEF BLOCK blockName=NAME '{' blockFieldDecl+ '}';
-
-blockDecl:
-    BLOCK blockName=NAME  '{' blockFieldDecl+ '}' times=DIGITS?;
-
-blockFieldDecl:
-    fieldDecl
-    | blockDeclRef
-    | blockImplicitDecl
-    ;
-
-blockDeclRef:
-    BLOCK blockName=NAME aliasName=NAME? times=DIGITS?;
-
-blockImplicitDecl:
-    BLOCK blockName=NAME? '{' blockFieldDecl+ '}';

@@ -10,11 +10,12 @@ LINE_COMMENT: (('-- ' | '#' | '//') ~[\r\n]* ('\r'? '\n' | EOF)
 
 
 // 文件后缀
-FILE_SUFFIX: '.bfs';
+FILE_SUFFIX: '.BFS';
 FILE_NAME: REGUALR_NAME_SYMBOL+ FILE_SUFFIX;
 
 // 关键字
 INCLUDE: '-INCLUDE';
+DEFINE: 'DEFINE';
 BLOCK: 'BLOCK';
 TYPE_DEF: 'TYPEDEF';
 
@@ -88,6 +89,8 @@ UNIT: 'B' // byte
     | 'b' // bit
     | [lL]'B' // byte, little endian
     | [bB]'B' // byte, big endian
+    | [kK]'B'
+    | [mM]'B'
     ;
 
 // 名称
@@ -100,6 +103,8 @@ RB: ']';
 SQ: '\'';   // single quotes
 DQ: '"';    // double quotes
 COMMA: ',';
+DOT: '.';
+ELLIPSIS: '...';
 
 DIGITS: DIGIT+;
 fragment DIGIT: [0-9];

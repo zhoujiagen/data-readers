@@ -1,7 +1,9 @@
 -include filHeaderTrailer.bfs;
 -include fspHeader.bfs;
 -include extentDescriptor.bfs;
--include record.bfs;
+//-include record.bfs;
+
+define PAGE_SIZE=16KB;
 
 // FSP_HDR
 
@@ -107,9 +109,9 @@ typedef block IndexPage {
     // User Records
     // Free Space
     FREE_SPACE: ...;
-    block IndexPageDirectory [IndexPageHeader.NUMBER_OF_DIRECTORY_SLOTS];
+    block IndexPageDirectory $[IndexPageHeader.NUMBER_OF_DIRECTORY_SLOTS];
     block FILTrailer;
-};
+}: ${PAGE_SIZE};
 
 
 // TRX_SYS

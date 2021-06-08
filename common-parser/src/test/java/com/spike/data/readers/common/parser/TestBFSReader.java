@@ -33,6 +33,6 @@ public class TestBFSReader {
 
         //test("bfs/main/mysql/frmFile.bfs", "bfs/test/mysql/t1.frm");
 
-        test("bfs/main/mysql/perTableSpace.bfs", "bfs/test/mysql/t1.ibd");
+        test("bfs/main/mysql/perTableSpace.bfs", "bfs/test/mysql/t.ibd");
     }
 }
