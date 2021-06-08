@@ -1,8 +1,11 @@
 -include filHeaderTrailer.bfs;
 -include fspHeader.bfs;
 -include extentDescriptor.bfs;
+-include record.bfs;
 
-typedef block PAGE_FSP_HDR {
+// FSP_HDR
+
+typedef block FspHeaderPage {
     block FILHeader;
     block FSPHeader;
     block XDESEntry 256;
@@ -10,39 +13,107 @@ typedef block PAGE_FSP_HDR {
     block FILTrailer;
 };
 
-typedef block IBUF_BITMAP_PAGE_ENTRY {
+// IBUF_BITMAP
+
+typedef block InsertBufferBitmapPageEntry {
     FREE_SPACE: 2b;
     BUFFERED_FLAG: 1b;
     CHANGE_BUFFER_FLAG: 1b;
 };
 
-typedef block PAGE_IBUF_BITMAP {
+typedef block InsertBufferBitmapPage {
     block FILHeader;
     // CHANGE_BUFFER_BITMAP: 8192B; // 4 bits per page: pages 0-16384
-    block IBUF_BITMAP_PAGE_ENTRY 2048;
+    block InsertBufferBitmapPageEntry 2048;
     EMPTY_SPACE: 8146B;
     block FILTrailer;
 };
 
-typedef block INODE_ENTRY {
+// INODE
+
+typedef block InodeEntry {
     FSEG_ID: 8B;
     USED_PAGE_IN_NOT_FULL: 4B;
     LIST_BASE_NODE_FOR_FREE: 16B;
     LIST_BASE_NODE_FOR_NOT_FULL: 16B;
     LIST_BASE_NODE_FOR_FULL: 16B;
     MAGIC_NUMBER: 4B;   // 97937874
-    block FRAGMENT_ARRAY_ENTRY {
+    block FragmentArrayEntry {
         ENTRY: 4B;
     } 32;
 };
 
-typedef block PAGE_INODE {
+typedef block InodePage {
     block FILHeader;
     LIST_NODE_FOR_INODE_PAGE_LIST: 12B;
-    block INODE_ENTRY 85;
+    block InodeEntry 85;
     EMPTY_SPACE: 6B;
     block FILTrailer;
 };
 
-// TODO: PAGE_INDEX
-// TODO: PAGE_TRX_SYS
+// INDEX
+
+typedef block IndexPageHeader {
+    NUMBER_OF_DIRECTORY_SLOTS: 2B;
+    HEAP_TOP_POSITION: 2B;
+    NUMBER_OF_HEAP_RECORDS: 2B; // format flag
+    FIRST_GARBAGE_RECORD_OFFSET: 2B;
+    GARBAGE_SPACE: 2B;
+    LAST_INSERT_POSITION: 2B;
+    PAGE_DIRECTION: 2B;
+    NUMBER_OF_INSERTS_IN_PAGE_DIRECTION: 2B;
+    NUMBER_OF_RECORDS: 2B;
+    MAXIMUM_TRANSACTION_ID: 8B;
+    PAGE_LEVEL: 2B;
+    INDEX_ID: 8B;
+};
+
+typedef block FileSegmentHeader {
+    LEAF_PAGE_INODE_SPACE_ID: 4B;
+    LEAF_PAGE_INODE_PAGE_NO: 4B;
+    LEAF_PAGE_INODE_OFFSET: 2B;
+
+    INTERNAL_PAGE_INODE_SPACE_ID: 4B;
+    INTERNAL_PAGE_INODE_PAGE_NO: 4B;
+    INTERNAL_PAGE_INODE_OFFSET: 2B;
+};
+
+typedef block IndexSystemRecord {
+    INFO_FLAGS: 4b;
+    NUMBER_OF_RECORDS_OWNED: 4b;
+    ORDER: 13b;
+    RECORD_TYPE: 3b;
+    NEXT_RECORD_OFFSET: 2B;
+    INFIMUM: 8B;
+
+    INFO_FLAGS: 4b;
+    NUMBER_OF_RECORDS_OWNED: 4b;
+    ORDER: 13b;
+    RECORD_TYPE: 3b;
+    NEXT_RECORD_OFFSET: 2B;
+    SUPREMUM: 8B;
+};
+
+typedef block IndexPageDirectory {
+    SLOT: 2B
+};
+
+// FIXME(zhoujiagen): handle field dependencies
+typedef block IndexPage {
+    block FILHeader;
+    block IndexPageHeader;
+    block FileSegmentHeader;
+    block IndexSystemRecord;
+    // User Records
+    // Free Space
+    FREE_SPACE: ...;
+    block IndexPageDirectory [IndexPageHeader.NUMBER_OF_DIRECTORY_SLOTS];
+    block FILTrailer;
+};
+
+
+// TRX_SYS
+
+//typedef block TransactionSystemPage {
+//
+//};

@@ -1,0 +1,17 @@
+// Record
+
+// FIXME(zhoujiagen): handle typeSpec dependencies
+// rem/rem0rec.cc NEW STYLE
+typedef block RecordHeader {
+    VARIABLE_FIELD_LENGTHS: ${VARIABLE_FIELD_LENGTH_BYTES} B ${NON_NULL_FIELD_COUNT}; // runtime
+    NULLABLE_FIELD_BITMAP: ${NULL_FIELD_COUNT} B;
+
+    INFO_FLAGS: 4b;
+    NUMBER_OF_RECORD_OWNED: 4b;
+    ORDER_NO_IN_HEAP: 13b;
+    RECORD_TYPE: 3b; // 000=conventional, 001=node pointer (inside B-tree), 010=infimum, 011=supremum, 1xx=reserved
+    NEXT_RECORD_OFFSET: 2B;
+
+    // ORIGIN of the record
+    RECORD_DATA: ${RECORD_DATA_LENGTH} B;
+};

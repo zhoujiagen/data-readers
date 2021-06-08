@@ -91,7 +91,7 @@ UNIT: 'B' // byte
     ;
 
 // 名称
-NAME: [a-zA-Z][0-9a-zA-Z_\-]+[0-9a-zA-Z];
+NAME: [a-zA-Z][0-9a-zA-Z_\-]*;
 
 LP: '(';    // parenthesis
 RP: ')';

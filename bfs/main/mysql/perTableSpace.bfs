@@ -1,11 +1,26 @@
 // Per-table space
 
-// page 0: FSP_HDR: Filespace Header / Extent Descriptor
-// page 1: IBUF_BITMAP: Insert Buffer Bookkeeping
-// page 2: INODE: Index Node Information
-// page 3: INDEX: Root page of first index
-// page 4: INDEX: Root page of second index
-// pages: INDEX: Node pages ...
-// pages: INDEX: Leaf pages ...
-// pages: ALLOCATED: Reserved but unused pages ...
-// pages: More pages ...
+-include fspHeader.bfs;
+-include page.bfs;
+
+block PerTableSpace {
+    // page 0: FSP_HDR: Filespace Header / Extent Descriptor
+    block FspHeaderPage;
+
+    // page 1: IBUF_BITMAP: Insert Buffer Bookkeeping
+    block InsertBufferBitmapPage;
+
+    // page 2: INODE: Index Node Information
+    block InodePage;
+
+    // page 3: INDEX: Root page of first index
+    block IndexPage;
+
+    // page 4: INDEX: Root page of second index
+    block IndexPage;
+
+    // pages: INDEX: Node pages ...
+    // pages: INDEX: Leaf pages ...
+    // pages: ALLOCATED: Reserved but unused pages ...
+    // pages: More pages ...
+};

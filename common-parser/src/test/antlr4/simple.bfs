@@ -30,6 +30,7 @@ BLOCK BLOCK-2 {
         PAGE_FREE: 2B;
         PAGE_N_HEAP: 2B;
         BLOCK BLOCK-1;
+        BLOCK BLOCK-1 T;           // alias
         BLOCK BLOCK-3 4;
         BLOCK {
             PAGE_FREE: 2B;

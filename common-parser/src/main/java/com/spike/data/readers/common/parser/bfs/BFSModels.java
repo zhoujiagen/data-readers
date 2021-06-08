@@ -1,7 +1,5 @@
 package com.spike.data.readers.common.parser.bfs;
 
-import com.spike.data.readers.common.types.Either;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -10,18 +8,39 @@ public interface BFSModels {
     abstract class BFSBaseModel {
     }
 
+    class BFSInclude extends BFSBaseModel {
+        private String fileName;
+
+        public String getFileName() {
+            return fileName;
+        }
+
+        public void setFileName(String fileName) {
+            this.fileName = fileName;
+        }
+    }
+
     class BFSBaseDecl extends BFSBaseModel {
     }
 
     class BFSFile extends BFSBaseModel {
-        private List<String> includes;
+        private String fileName;
+        private Optional<List<BFSInclude>> includes;
         private List<BFSFileFieldSpecification> fieldSpecifications;
 
-        public List<String> getIncludes() {
+        public String getFileName() {
+            return fileName;
+        }
+
+        public void setFileName(String fileName) {
+            this.fileName = fileName;
+        }
+
+        public Optional<List<BFSInclude>> getIncludes() {
             return includes;
         }
 
-        public void setIncludes(List<String> includes) {
+        public void setIncludes(Optional<List<BFSInclude>> includes) {
             this.includes = includes;
         }
 
@@ -35,14 +54,32 @@ public interface BFSModels {
     }
 
     class BFSFileFieldSpecification extends BFSBaseModel {
-        private Either<BFSFieldDecl, BFSBlockDecl> either;
+        private Optional<BFSFieldDecl> fieldDecl = Optional.empty();
+        private Optional<BFSBlockDef> blockDef = Optional.empty();
+        private Optional<BFSBlockDecl> blockDecl = Optional.empty();
 
-        public Either<BFSFieldDecl, BFSBlockDecl> getEither() {
-            return either;
+        public Optional<BFSFieldDecl> getFieldDecl() {
+            return fieldDecl;
         }
 
-        public void setEither(Either<BFSFieldDecl, BFSBlockDecl> either) {
-            this.either = either;
+        public void setFieldDecl(Optional<BFSFieldDecl> fieldDecl) {
+            this.fieldDecl = fieldDecl;
+        }
+
+        public Optional<BFSBlockDef> getBlockDef() {
+            return blockDef;
+        }
+
+        public void setBlockDef(Optional<BFSBlockDef> blockDef) {
+            this.blockDef = blockDef;
+        }
+
+        public Optional<BFSBlockDecl> getBlockDecl() {
+            return blockDecl;
+        }
+
+        public void setBlockDecl(Optional<BFSBlockDecl> blockDecl) {
+            this.blockDecl = blockDecl;
         }
     }
 
@@ -158,7 +195,8 @@ public interface BFSModels {
 
     class BFSBlockDeclRef extends BFSBlockFieldDecl {
         private String blockName;
-        private Integer times;
+        private Optional<String> aliasName;
+        private Optional<Integer> times;
 
         public String getBlockName() {
             return blockName;
@@ -168,11 +206,19 @@ public interface BFSModels {
             this.blockName = blockName;
         }
 
-        public Integer getTimes() {
+        public Optional<String> getAliasName() {
+            return aliasName;
+        }
+
+        public void setAliasName(Optional<String> aliasName) {
+            this.aliasName = aliasName;
+        }
+
+        public Optional<Integer> getTimes() {
             return times;
         }
 
-        public void setTimes(Integer times) {
+        public void setTimes(Optional<Integer> times) {
             this.times = times;
         }
     }
@@ -180,7 +226,7 @@ public interface BFSModels {
     class BFSBlockImplicitDecl extends BFSBlockFieldDecl {
         private Optional<String> blockName; // maybe null
         private List<BFSBlockFieldDecl> blockFieldDecls;
-        private Integer times;
+        private Optional<Integer> times;
 
         public Optional<String> getBlockName() {
             return blockName;
@@ -198,11 +244,11 @@ public interface BFSModels {
             this.blockFieldDecls = blockFieldDecls;
         }
 
-        public Integer getTimes() {
+        public Optional<Integer> getTimes() {
             return times;
         }
 
-        public void setTimes(Integer times) {
+        public void setTimes(Optional<Integer> times) {
             this.times = times;
         }
     }

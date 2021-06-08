@@ -9,7 +9,6 @@ import com.google.common.primitives.Bytes;
 import com.spike.data.readers.common.DataFileReader;
 import com.spike.data.readers.common.parser.bfs.BFSIRs;
 import com.spike.data.readers.common.parser.bfs.BFSModels;
-import com.spike.data.readers.common.types.Either;
 import org.antlr.v4.runtime.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,39 +31,30 @@ public class BFSReader extends BFSParserBaseVisitor<BFSModels.BFSBaseModel> {
         this.bfsFile = parse();
     }
 
-    BFSModels.BFSFile parse() throws IOException {
-        CharStream rawCS = CharStreams.fromPath(path);
-        CaseChangingCharStream cs = new CaseChangingCharStream(rawCS, true);
-        BFSParserLexer lexer = new BFSParserLexer(cs);
-        CommonTokenStream tokens = new CommonTokenStream(lexer);
-        BFSParserParser parser = new BFSParserParser(tokens);
-
-        parser.setErrorHandler(new DefaultErrorStrategy());
-        parser.addErrorListener(new DiagnosticErrorListener());
-
-        BFSParserParser.RootContext rootContext = parser.root();
-        this.bfsFile = this.visitRoot(rootContext);
-        return this.bfsFile;
-    }
+    //---------------------------------------------------------------------------
+    // Read
+    //---------------------------------------------------------------------------
 
     public <OUT> void read(DataFileReader<OUT> reader) throws IOException {
-        List<String> includes = bfsFile.getIncludes();
-        if (includes != null && includes.size() > 0) {
-            LOG.warn("currently not support include: " +
-                    Joiner.on(",").join(includes));
+        Optional<List<BFSModels.BFSInclude>> includes = bfsFile.getIncludes();
+        if (LOG.isDebugEnabled()) {
+            if (includes.isPresent()) {
+                LOG.debug("Include: {}", Joiner.on(",").join(includes.get()));
+            }
         }
 
         List<BFSModels.BFSFileFieldSpecification> fieldSpecifications =
                 bfsFile.getFieldSpecifications();
         for (BFSModels.BFSFileFieldSpecification fieldSpecification :
                 fieldSpecifications) {
-            Either<BFSModels.BFSFieldDecl, BFSModels.BFSBlockDecl> either =
-                    fieldSpecification.getEither();
-            if (either.isLeft()) {
-                BFSModels.BFSFieldDecl fieldDecl = either.getLeft();
+            if (fieldSpecification.getFieldDecl().isPresent()) {
+                BFSModels.BFSFieldDecl fieldDecl = fieldSpecification.getFieldDecl().get();
                 this.read(reader, fieldDecl, 0);
-            } else {
-                BFSModels.BFSBlockDecl blockDecl = either.getRight();
+            } else if (fieldSpecification.getBlockDef().isPresent()) {
+                BFSModels.BFSBlockDef blockDef = fieldSpecification.getBlockDef().get();
+                // do nothing
+            } else if (fieldSpecification.getBlockDecl().isPresent()) {
+                BFSModels.BFSBlockDecl blockDecl = fieldSpecification.getBlockDecl().get();
                 this.read(reader, blockDecl, 0);
             }
         }
@@ -145,6 +135,73 @@ public class BFSReader extends BFSParserBaseVisitor<BFSModels.BFSBaseModel> {
     }
 
 
+    //---------------------------------------------------------------------------
+    // Parse
+    //---------------------------------------------------------------------------
+
+    static class ParseContext {
+        Map<String, BFSIRs.BFSFileUnit> bfsFileUnitMap = Maps.newHashMap();
+
+        public void registerBFSFile(BFSIRs.BFSFileUnit bfsFileUnit) {
+            final String fileName = bfsFileUnit.getFileName();
+            if (bfsFileUnitMap.containsKey(fileName)) {
+                LOG.warn("File Unit already exist: {}", fileName);
+            }
+            bfsFileUnitMap.put(fileName, bfsFileUnit);
+        }
+    }
+
+    static final ParseContext PARSE_CONTEXT = new ParseContext();
+
+    BFSModels.BFSFile parse() throws IOException {
+        this.bfsFile = this.parse(path);
+
+        BFSIRs.BFSFileUnit bfsFileUnit = new BFSIRs.BFSFileUnit();
+        bfsFileUnit.setFileName(this.bfsFile.getFileName());
+        bfsFileUnit.setBfsFile(this.bfsFile);
+
+        if (bfsFile.getIncludes().isPresent()) {
+            List<BFSIRs.BFSFileUnit> includeBFSFileUnits = Lists.newArrayList();
+            for (BFSModels.BFSInclude includeFile : bfsFile.getIncludes().get()) {
+                BFSModels.BFSFile includeBFSFile =
+                        this.parse(path.getParent().resolve(includeFile.getFileName()));
+                BFSIRs.BFSFileUnit includeBFSFileUnit = new BFSIRs.BFSFileUnit();
+                includeBFSFileUnit.setFileName(includeBFSFile.getFileName());
+                includeBFSFileUnit.setBfsFile(includeBFSFile);
+                PARSE_CONTEXT.registerBFSFile(includeBFSFileUnit);
+                includeBFSFileUnits.add(includeBFSFileUnit);
+            }
+            bfsFileUnit.setIncludes(Optional.of(includeBFSFileUnits));
+        } else {
+            bfsFileUnit.setIncludes(Optional.empty());
+        }
+
+        PARSE_CONTEXT.registerBFSFile(bfsFileUnit);
+
+        return this.bfsFile;
+    }
+
+    BFSModels.BFSFile parse(Path bfsFilePath) throws IOException {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Parse {}", bfsFilePath.toString());
+        }
+
+        CharStream rawCS = CharStreams.fromPath(bfsFilePath);
+        CaseChangingCharStream cs = new CaseChangingCharStream(rawCS, true);
+        BFSParserLexer lexer = new BFSParserLexer(cs);
+        CommonTokenStream tokens = new CommonTokenStream(lexer);
+        BFSParserParser parser = new BFSParserParser(tokens);
+
+        parser.setErrorHandler(new DefaultErrorStrategy());
+        parser.addErrorListener(new DiagnosticErrorListener());
+
+        BFSParserParser.RootContext rootContext = parser.root();
+        BFSModels.BFSFile result = this.visitRoot(rootContext);
+
+        result.setFileName(bfsFilePath.getFileName().toString());
+        return result;
+    }
+
     /**
      * {@inheritDoc}
      *
@@ -156,7 +213,17 @@ public class BFSReader extends BFSParserBaseVisitor<BFSModels.BFSBaseModel> {
         BFSModels.BFSFile result = new BFSModels.BFSFile();
 
         if (ctx.prologue() != null) {
-            LOG.warn("currently not support include: " + ctx.prologue().toStringTree());
+            List<BFSModels.BFSInclude> includes = Lists.newArrayList();
+            List<BFSParserParser.IncludeContext> includeContexts = ctx.prologue().include();
+            for (BFSParserParser.IncludeContext includeContext : includeContexts) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("include: {}", includeContext.fileName.getText());
+                }
+                includes.add(this.visitInclude(includeContext));
+            }
+            result.setIncludes(Optional.of(includes));
+        } else {
+            result.setIncludes(Optional.empty());
         }
 
         List<BFSModels.BFSFileFieldSpecification> specifications = Lists.newArrayList();
@@ -189,8 +256,10 @@ public class BFSReader extends BFSParserBaseVisitor<BFSModels.BFSBaseModel> {
      * {@link #visitChildren} on {@code ctx}.</p>
      */
     @Override
-    public BFSModels.BFSBaseModel visitInclude(BFSParserParser.IncludeContext ctx) {
-        return visitChildren(ctx);
+    public BFSModels.BFSInclude visitInclude(BFSParserParser.IncludeContext ctx) {
+        BFSModels.BFSInclude result = new BFSModels.BFSInclude();
+        result.setFileName(ctx.fileName.getText());
+        return result;
     }
 
 
@@ -203,12 +272,16 @@ public class BFSReader extends BFSParserBaseVisitor<BFSModels.BFSBaseModel> {
     @Override
     public BFSModels.BFSFileFieldSpecification visitFieldSpecification(BFSParserParser.FieldSpecificationContext ctx) {
         BFSModels.BFSFileFieldSpecification result = new BFSModels.BFSFileFieldSpecification();
-        BFSParserParser.FieldDeclContext fieldDeclContext = ctx.fieldDecl();
-        BFSParserParser.BlockDeclContext blockDeclContext = ctx.blockDecl();
+        final BFSParserParser.FieldDeclContext fieldDeclContext = ctx.fieldDecl();
+        final BFSParserParser.BlockDefContext blockDefContext = ctx.blockDef();
+        final BFSParserParser.BlockDeclContext blockDeclContext = ctx.blockDecl();
+
         if (fieldDeclContext != null) {
-            result.setEither(Either.of(this.visitFieldDecl(fieldDeclContext), null));
+            result.setFieldDecl(Optional.of(this.visitFieldDecl(fieldDeclContext)));
+        } else if (blockDefContext != null) {
+            result.setBlockDef(Optional.of(this.visitBlockDef(blockDefContext)));
         } else if (blockDeclContext != null) {
-            result.setEither(Either.of(null, this.visitBlockDecl(blockDeclContext)));
+            result.setBlockDecl(Optional.of(this.visitBlockDecl(blockDeclContext)));
         } else {
             throw new RuntimeException(ctx.toStringTree());
         }
@@ -255,7 +328,8 @@ public class BFSReader extends BFSParserBaseVisitor<BFSModels.BFSBaseModel> {
      * <p>The default implementation returns the result of calling
      * {@link #visitChildren} on {@code ctx}.</p>
      */
-    @Override public BFSModels.BFSBlockDef visitBlockDef(BFSParserParser.BlockDefContext ctx) {
+    @Override
+    public BFSModels.BFSBlockDef visitBlockDef(BFSParserParser.BlockDefContext ctx) {
         BFSModels.BFSBlockDef result = new BFSModels.BFSBlockDef();
         result.setBlockName(ctx.blockName.getText());
 
@@ -330,8 +404,17 @@ public class BFSReader extends BFSParserBaseVisitor<BFSModels.BFSBaseModel> {
     public BFSModels.BFSBlockDeclRef visitBlockDeclRef(BFSParserParser.BlockDeclRefContext ctx) {
         BFSModels.BFSBlockDeclRef result = new BFSModels.BFSBlockDeclRef();
         result.setBlockName(ctx.blockName.getText());
+
+        if (ctx.aliasName != null) {
+            result.setAliasName(Optional.of(ctx.aliasName.getText()));
+        } else {
+            result.setAliasName(Optional.empty());
+        }
+
         if (ctx.times != null) {
-            result.setTimes(Integer.valueOf(ctx.times.getText()));
+            result.setTimes(Optional.of(Integer.valueOf(ctx.times.getText())));
+        } else {
+            result.setTimes(Optional.empty());
         }
         return result;
     }
@@ -360,7 +443,9 @@ public class BFSReader extends BFSParserBaseVisitor<BFSModels.BFSBaseModel> {
         result.setBlockFieldDecls(blockFieldDecls);
 
         if (ctx.times != null) {
-            result.setTimes(Integer.valueOf(ctx.times.getText()));
+            result.setTimes(Optional.of(Integer.valueOf(ctx.times.getText())));
+        } else {
+            result.setTimes(Optional.empty());
         }
         return result;
     }

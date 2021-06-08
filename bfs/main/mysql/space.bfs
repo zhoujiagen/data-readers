@@ -1,13 +1,10 @@
 // Space file
 
 // FSP_HDR: Filespace Header / Extent Descriptor
-// 16KB
 
 // IBUF_BITMAP: Insert Buffer Bookkeeping
-// 16KB
 
 // INODE: Index Node Information
-// 16 KB
 
 // pages
 

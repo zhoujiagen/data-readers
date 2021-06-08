@@ -1,22 +1,18 @@
 package com.spike.data.readers.common.parser.bfs;
 
+import java.util.List;
+import java.util.Optional;
+
 public interface BFSIRs {
-    class BFSBlockDefinition {
-        private BFSModels.BFSBlockDef definition;
-        private String outer;
+    class BFSFileUnit {
         private String fileName;
+        private BFSModels.BFSFile bfsFile;
 
-        public String getName() {
-            return definition.getBlockName();
-        }
+        private Optional<List<BFSFileUnit>> includes;
 
-        public String getOuter() {
-            return outer;
-        }
-
-        public void setOuter(String outer) {
-            this.outer = outer;
-        }
+        //---------------------------------------------------------------------------
+        // getter/setter
+        //---------------------------------------------------------------------------
 
         public String getFileName() {
             return fileName;
@@ -26,12 +22,20 @@ public interface BFSIRs {
             this.fileName = fileName;
         }
 
-        public BFSModels.BFSBlockDef getDefinition() {
-            return definition;
+        public BFSModels.BFSFile getBfsFile() {
+            return bfsFile;
         }
 
-        public void setDefinition(BFSModels.BFSBlockDef definition) {
-            this.definition = definition;
+        public void setBfsFile(BFSModels.BFSFile bfsFile) {
+            this.bfsFile = bfsFile;
+        }
+
+        public Optional<List<BFSFileUnit>> getIncludes() {
+            return includes;
+        }
+
+        public void setIncludes(Optional<List<BFSFileUnit>> includes) {
+            this.includes = includes;
         }
     }
 }

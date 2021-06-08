@@ -95,7 +95,7 @@ blockFieldDecl:
     ;
 
 blockDeclRef:
-    BLOCK blockName=NAME times=DIGITS?;
+    BLOCK blockName=NAME aliasName=NAME? times=DIGITS?;
 
 blockImplicitDecl:
     BLOCK blockName=NAME? '{' blockFieldDecl+ '}';
