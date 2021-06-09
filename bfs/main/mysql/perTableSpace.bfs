@@ -14,13 +14,16 @@ block PerTableSpace {
     block InodePage;
 
     // page 3: INDEX: Root page of first index
-    block IndexPage;
+    block IndexPage FIRST_INDEX_ROOT_PAGE;
 
     // page 4: INDEX: Root page of second index
-    block IndexPage;
+    block IndexPage SECOND_INDEX_ROOT_PAGE;
 
     // pages: INDEX: Node pages ...
     // pages: INDEX: Leaf pages ...
+    block IndexPage DATA_PAGES : ...;
+
     // pages: ALLOCATED: Reserved but unused pages ...
     // pages: More pages ...
+    block AllocatedPage ALLOCATED_PAGES : ...;
 };

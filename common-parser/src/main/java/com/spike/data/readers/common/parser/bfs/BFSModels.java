@@ -5,10 +5,31 @@ import java.util.Optional;
 
 public interface BFSModels {
 
-    abstract class BFSBaseModel {
+    abstract class Base {
     }
 
-    class BFSInclude extends BFSBaseModel {
+    class Prologue extends Base {
+        private Optional<List<Include>> includes;
+        private Optional<List<Define>> defines;
+
+        public Optional<List<Include>> getIncludes() {
+            return includes;
+        }
+
+        public void setIncludes(Optional<List<Include>> includes) {
+            this.includes = includes;
+        }
+
+        public Optional<List<Define>> getDefines() {
+            return defines;
+        }
+
+        public void setDefines(Optional<List<Define>> defines) {
+            this.defines = defines;
+        }
+    }
+
+    class Include extends Prologue {
         private String fileName;
 
         public String getFileName() {
@@ -25,76 +46,97 @@ public interface BFSModels {
         }
     }
 
-    class BFSBaseDecl extends BFSBaseModel {
-    }
+    class Define extends Prologue {
+        private String constName;
+        private String constValue;
 
-    class BFSFile extends BFSBaseModel {
-        private String fileName;
-        private Optional<List<BFSInclude>> includes;
-        private List<BFSFileFieldSpecification> fieldSpecifications;
-
-        public String getFileName() {
-            return fileName;
+        public String getConstName() {
+            return constName;
         }
 
-        public void setFileName(String fileName) {
-            this.fileName = fileName;
+        public void setConstName(String constName) {
+            this.constName = constName;
         }
 
-        public Optional<List<BFSInclude>> getIncludes() {
-            return includes;
+        public String getConstValue() {
+            return constValue;
         }
 
-        public void setIncludes(Optional<List<BFSInclude>> includes) {
-            this.includes = includes;
-        }
-
-        public List<BFSFileFieldSpecification> getFieldSpecifications() {
-            return fieldSpecifications;
-        }
-
-        public void setFieldSpecifications(List<BFSFileFieldSpecification> fieldSpecifications) {
-            this.fieldSpecifications = fieldSpecifications;
+        public void setConstValue(String constValue) {
+            this.constValue = constValue;
         }
     }
 
-    class BFSFileFieldSpecification extends BFSBaseModel {
-        private Optional<BFSFieldDecl> fieldDecl = Optional.empty();
-        private Optional<BFSBlockDef> blockDef = Optional.empty();
-        private Optional<BFSBlockDecl> blockDecl = Optional.empty();
+    abstract class Specification extends Base {
+    }
 
-        public Optional<BFSFieldDecl> getFieldDecl() {
-            return fieldDecl;
+    class BlockDef extends Specification {
+        private String blockName;
+        private List<BlockFieldDecl> blockFieldDecls;
+        private Optional<BlockTypeSpec> blockTypeSpec;
+
+        public String getBlockName() {
+            return blockName;
         }
 
-        public void setFieldDecl(Optional<BFSFieldDecl> fieldDecl) {
-            this.fieldDecl = fieldDecl;
+        public void setBlockName(String blockName) {
+            this.blockName = blockName;
         }
 
-        public Optional<BFSBlockDef> getBlockDef() {
-            return blockDef;
+        public List<BlockFieldDecl> getBlockFieldDecls() {
+            return blockFieldDecls;
         }
 
-        public void setBlockDef(Optional<BFSBlockDef> blockDef) {
-            this.blockDef = blockDef;
+        public void setBlockFieldDecls(List<BlockFieldDecl> blockFieldDecls) {
+            this.blockFieldDecls = blockFieldDecls;
         }
 
-        public Optional<BFSBlockDecl> getBlockDecl() {
-            return blockDecl;
+        public Optional<BlockTypeSpec> getBlockTypeSpec() {
+            return blockTypeSpec;
         }
 
-        public void setBlockDecl(Optional<BFSBlockDecl> blockDecl) {
-            this.blockDecl = blockDecl;
+        public void setBlockTypeSpec(Optional<BlockTypeSpec> blockTypeSpec) {
+            this.blockTypeSpec = blockTypeSpec;
         }
     }
 
-    abstract class BFSBlockFieldDecl extends BFSBaseDecl {
-    }
-
-    class BFSFieldDecl extends BFSBlockFieldDecl {
-        private String fieldName;
-        private BFSTypeSpec typeSpec;
+    class BlockDecl extends Specification {
+        private String blockName;
+        private List<BlockFieldDecl> blockFieldDecls;
         private Optional<Integer> times;
+
+        public String getBlockName() {
+            return blockName;
+        }
+
+        public void setBlockName(String blockName) {
+            this.blockName = blockName;
+        }
+
+        public List<BlockFieldDecl> getBlockFieldDecls() {
+            return blockFieldDecls;
+        }
+
+        public void setBlockFieldDecls(List<BlockFieldDecl> blockFieldDecls) {
+            this.blockFieldDecls = blockFieldDecls;
+        }
+
+        public Optional<Integer> getTimes() {
+            return times;
+        }
+
+        public void setTimes(Optional<Integer> times) {
+            this.times = times;
+        }
+    }
+
+
+    abstract class BlockFieldDecl extends Base {
+    }
+
+    class FieldDecl extends BlockFieldDecl {
+        private String fieldName;
+        private FieldTypeSpec fieldTypeSpec;
 
         public String getFieldName() {
             return fieldName;
@@ -104,113 +146,19 @@ public interface BFSModels {
             this.fieldName = fieldName;
         }
 
-        public BFSTypeSpec getTypeSpec() {
-            return typeSpec;
+        public FieldTypeSpec getFieldTypeSpec() {
+            return fieldTypeSpec;
         }
 
-        public void setTypeSpec(BFSTypeSpec typeSpec) {
-            this.typeSpec = typeSpec;
-        }
-
-        public Optional<Integer> getTimes() {
-            return times;
-        }
-
-        public void setTimes(Optional<Integer> times) {
-            this.times = times;
+        public void setFieldTypeSpec(FieldTypeSpec fieldTypeSpec) {
+            this.fieldTypeSpec = fieldTypeSpec;
         }
     }
 
-    enum BFSTypeUnit {
-        B, b, LB, BB;
-    }
-
-    class BFSTypeSpec extends BFSBaseModel {
-        private boolean ellipsis = false;
-        private int length;
-        private BFSTypeUnit unit;
-
-        public boolean isEllipsis() {
-            return ellipsis;
-        }
-
-        public void setEllipsis(boolean ellipsis) {
-            this.ellipsis = ellipsis;
-        }
-
-        public int getLength() {
-            return length;
-        }
-
-        public void setLength(int length) {
-            this.length = length;
-        }
-
-        public BFSTypeUnit getUnit() {
-            return unit;
-        }
-
-        public void setUnit(BFSTypeUnit unit) {
-            this.unit = unit;
-        }
-    }
-
-    class BFSBlockDef extends BFSBaseDecl {
-        private String blockName;
-        private List<BFSBlockFieldDecl> blockFieldDecls;
-
-        public String getBlockName() {
-            return blockName;
-        }
-
-        public void setBlockName(String blockName) {
-            this.blockName = blockName;
-        }
-
-        public List<BFSBlockFieldDecl> getBlockFieldDecls() {
-            return blockFieldDecls;
-        }
-
-        public void setBlockFieldDecls(List<BFSBlockFieldDecl> blockFieldDecls) {
-            this.blockFieldDecls = blockFieldDecls;
-        }
-    }
-
-    class BFSBlockDecl extends BFSBaseDecl {
-        private String blockName;
-        private List<BFSBlockFieldDecl> blockFieldDecls;
-        private Optional<Integer> times;
-
-        public String getBlockName() {
-            return blockName;
-        }
-
-        public void setBlockName(String blockName) {
-            this.blockName = blockName;
-        }
-
-        public List<BFSBlockFieldDecl> getBlockFieldDecls() {
-            return blockFieldDecls;
-        }
-
-        public void setBlockFieldDecls(List<BFSBlockFieldDecl> blockFieldDecls) {
-            this.blockFieldDecls = blockFieldDecls;
-        }
-
-        public Optional<Integer> getTimes() {
-            return times;
-        }
-
-        public void setTimes(Optional<Integer> times) {
-            this.times = times;
-        }
-    }
-
-
-    class BFSBlockDeclRef extends BFSBlockFieldDecl {
+    class BlockRef extends BlockFieldDecl {
         private String blockName;
         private Optional<String> aliasName;
-        private Optional<Integer> times;
+        private Optional<BlockRefTypeSpec> blockRefTypeSpec;
 
         public String getBlockName() {
             return blockName;
@@ -228,18 +176,18 @@ public interface BFSModels {
             this.aliasName = aliasName;
         }
 
-        public Optional<Integer> getTimes() {
-            return times;
+        public Optional<BlockRefTypeSpec> getBlockRefTypeSpec() {
+            return blockRefTypeSpec;
         }
 
-        public void setTimes(Optional<Integer> times) {
-            this.times = times;
+        public void setBlockRefTypeSpec(Optional<BlockRefTypeSpec> blockRefTypeSpec) {
+            this.blockRefTypeSpec = blockRefTypeSpec;
         }
     }
 
-    class BFSBlockImplicitDecl extends BFSBlockFieldDecl {
-        private Optional<String> blockName; // maybe null
-        private List<BFSBlockFieldDecl> blockFieldDecls;
+    class BlockImplicitDecl extends BlockFieldDecl {
+        private Optional<String> blockName;
+        private List<BlockFieldDecl> blockFieldDecls;
         private Optional<Integer> times;
 
         public Optional<String> getBlockName() {
@@ -250,11 +198,11 @@ public interface BFSModels {
             this.blockName = blockName;
         }
 
-        public List<BFSBlockFieldDecl> getBlockFieldDecls() {
+        public List<BlockFieldDecl> getBlockFieldDecls() {
             return blockFieldDecls;
         }
 
-        public void setBlockFieldDecls(List<BFSBlockFieldDecl> blockFieldDecls) {
+        public void setBlockFieldDecls(List<BlockFieldDecl> blockFieldDecls) {
             this.blockFieldDecls = blockFieldDecls;
         }
 
@@ -267,5 +215,160 @@ public interface BFSModels {
         }
     }
 
+    enum Unit {
+        B, b, LB, BB, KB, MB;
+
+        public static Unit of(String text) {
+            if (text == null) {
+                return null;
+            }
+            text = text.trim();
+            if ("".equals(text)) {
+                return null;
+            }
+
+            if (b.name().equals(text)) {
+                return b;
+            } else {
+                return valueOf(text.toUpperCase());
+            }
+        }
+    }
+
+    abstract class FieldTypeSpec extends Base {
+    }
+
+    class FieldTypeSpecAny extends FieldTypeSpec {
+    }
+
+    class FieldTypeSpecFixed extends FieldTypeSpec {
+        private int length;
+        private Unit unit;
+        private Optional<Integer> times;
+
+        public int getLength() {
+            return length;
+        }
+
+        public void setLength(int length) {
+            this.length = length;
+        }
+
+        public Unit getUnit() {
+            return unit;
+        }
+
+        public void setUnit(Unit unit) {
+            this.unit = unit;
+        }
+
+        public Optional<Integer> getTimes() {
+            return times;
+        }
+
+        public void setTimes(Optional<Integer> times) {
+            this.times = times;
+        }
+    }
+
+
+    abstract class BlockTypeSpec extends Base {
+    }
+
+    class BlockTypeSpecFixed extends BlockTypeSpec {
+        private int length;
+        private Unit unit;
+
+        public int getLength() {
+            return length;
+        }
+
+        public void setLength(int length) {
+            this.length = length;
+        }
+
+        public Unit getUnit() {
+            return unit;
+        }
+
+        public void setUnit(Unit unit) {
+            this.unit = unit;
+        }
+    }
+
+    class BlockTypeSpecRefed extends BlockTypeSpec {
+        private ConstValueRef constValueRef;
+        private Unit unit;
+
+        public ConstValueRef getConstValueRef() {
+            return constValueRef;
+        }
+
+        public void setConstValueRef(ConstValueRef constValueRef) {
+            this.constValueRef = constValueRef;
+        }
+
+        public Unit getUnit() {
+            return unit;
+        }
+
+        public void setUnit(Unit unit) {
+            this.unit = unit;
+        }
+    }
+
+    abstract class BlockRefTypeSpec extends Base {
+    }
+
+    class BlockRefTypeSpecAny extends BlockRefTypeSpec {
+    }
+
+    class BlockRefTypeSpecFixed extends BlockRefTypeSpec {
+        private int times;
+
+        public int getTimes() {
+            return times;
+        }
+
+        public void setTimes(int times) {
+            this.times = times;
+        }
+    }
+
+    class BlockRefTypeSpecRefed extends BlockRefTypeSpec {
+        private FieldValueRef fieldValueRef;
+
+        public FieldValueRef getFieldValueRef() {
+            return fieldValueRef;
+        }
+
+        public void setFieldValueRef(FieldValueRef fieldValueRef) {
+            this.fieldValueRef = fieldValueRef;
+        }
+    }
+
+    class FieldValueRef extends Base {
+        private List<String> valueNames;
+
+        public List<String> getValueNames() {
+            return valueNames;
+        }
+
+        public void setValueNames(List<String> valueNames) {
+            this.valueNames = valueNames;
+        }
+    }
+
+    class ConstValueRef extends Base {
+        private String constValue;
+
+        public String getConstValue() {
+            return constValue;
+        }
+
+        public void setConstValue(String constValue) {
+            this.constValue = constValue;
+        }
+    }
 
 }

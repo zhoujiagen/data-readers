@@ -103,8 +103,8 @@ RB: ']';
 SQ: '\'';   // single quotes
 DQ: '"';    // double quotes
 COMMA: ',';
-DOT: '.';
 ELLIPSIS: '...';
+DOT: '.';
 
 DIGITS: DIGIT+;
 fragment DIGIT: [0-9];
